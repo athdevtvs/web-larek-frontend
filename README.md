@@ -278,4 +278,4 @@ yarn build
 
 ### Типы данных
 
-См. [/src/types/index.ts]()
+См. [/src/types/index.ts](https://github.com/athdevtvs/web-larek-frontend/blob/main/src/types/index.ts)
