@@ -25,7 +25,7 @@ export class OrderModel extends Model<IOrder> implements IOrderModel {
 		}
 
 		if (this.validateOrderAddressAndPayment()) {
-			this.emitChanges('order:ready', this.order);
+			this.emitChanges(Events.ORDER_READY, this.order);
 		}
 	}
 
@@ -51,7 +51,7 @@ export class OrderModel extends Model<IOrder> implements IOrderModel {
 		}
 
 		if (this.validateContacts()) {
-			this.emitChanges('order:ready', this.order);
+			this.emitChanges(Events.ORDER_READY, this.order);
 		}
 	}
 

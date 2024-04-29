@@ -154,6 +154,7 @@ export enum Events {
 	BASKET_OPEN = 'basket:open', //открыть содержимое корзины
 	ORDER_OPEN = 'order:open', //открыть форму заказа
 	ORDER_SUBMIT = 'order:submit', //открыть форму контактов
+	ORDER_READY = 'order:ready', //пробросить пользователя на стр. success
 	FORM_ERRORS_ADRESS = 'formErrors:address', //Изменилось состояние валидации формы
 	FORM_ERRORS_CONTACTS = 'formErrors:contacts', //Изменилось состояние валидации формы
 	ORDER_PAYMENT_CHANGE = 'order:payment:change', //Изменился способ оплаты
