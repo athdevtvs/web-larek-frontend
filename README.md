@@ -392,8 +392,9 @@ interface RequestInit {
 
 ### Интерфейсы и типы данных
 
+Интерфейс описания товара
+
 ```ts
-//Интерфейс описания товара
 export interface IProduct {
 	id: string;
 	description: string;
@@ -403,12 +404,18 @@ export interface IProduct {
 	price: number | null;
 	selected: boolean;
 }
+```
 
-//Тип метода оплаты
+Тип метода оплаты
+
+```ts
 type PaymentMethodTuple = typeof PAYMENT_METHOD;
 export type PaymentMethod = PaymentMethodTuple[number];
+```
 
-//Интерфейс описания заказа
+Интерфейс описания заказа
+
+```ts
 export interface IOrder {
 	payment: PaymentMethod;
 	email: string;
@@ -417,56 +424,89 @@ export interface IOrder {
 	total: number;
 	items: string[];
 }
+```
 
-//Интерфейс содержимого карточки товара корзины
+Интерфейс содержимого карточки товара корзины
+
+```ts
 export interface ICard extends IProduct {
 	index: string;
 	button: string;
 }
+```
 
-//Тип поля с формы заказа
+Тип поля с формы заказа
+
+```ts
 export type TOrderForm = Pick<IOrder, 'payment' | 'address'>;
+```
 
-//Тип поля с формы контактов
+Тип поля с формы контактов
+
+```ts
 export type TContactForm = Pick<IOrder, 'email' | 'phone'>;
+```
 
-//Интрефейс результата заказа
+Интрефейс результата заказа
+
+```ts
 export interface IOrderResult {
 	id: string;
 	total: number;
 }
+```
 
-//Тип ошибок формы
+Тип ошибок формы
+
+```ts
 export type TFormErrors = Partial<Record<keyof IOrder, string>>;
+```
 
-//Тип со списоком ответов на запросы по API
+Тип со списоком ответов на запросы по API
+
+```ts
 export type ApiListResponse<Type> = {
 	total: number;
 	items: Type[];
 };
+```
 
-//Тип с набором HTTP методов
+Тип с набором HTTP методов
+
+```ts
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+```
 
-//Интерфейс события по клику
+Интерфейс события по клику
+
+```ts
 export interface IActions {
 	onClick: (event: MouseEvent) => void;
 }
+```
 
-//Интерфейс работы с событиями (установка/снятие слушателей, вызов слушателя)
+Интерфейс работы с событиями (установка/снятие слушателей, вызов слушателя)
+
+```ts
 export interface IEvents {
 	on<T extends object>(event: string, callback: (data: T) => void): void;
 	emit<T extends object>(event: string, data?: T): void;
 	trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
 }
+```
 
-//Интерфейс методов взаимодействия с API магазина
+Интерфейс методов взаимодействия с API магазина
+
+```ts
 export interface IMagazinusApi {
 	getProductList: () => Promise<IProduct[]>;
 	placeOrder: (order: IOrder) => Promise<IOrderResult>;
 }
+```
 
-//Интерфейс с общими полями и методами для работы с корзиной
+Интерфейс с общими полями и методами для работы с корзиной
+
+```ts
 export interface IBasketModel {
 	items: IProduct[];
 	price: number;
@@ -475,15 +515,21 @@ export interface IBasketModel {
 	deleteFromBasket: (item: IProduct) => void;
 	clearBasket: () => void;
 }
+```
 
-//Интерфейс с общими полями и методами для работы с каталогом
+Интерфейс с общими полями и методами для работы с каталогом
+
+```ts
 export interface ICatalogModel {
 	items: IProduct[];
 	selectedItem: IProduct;
 	preview: IProduct;
 }
+```
 
-//Интерфейс с общими полями и методами для работы с заказом
+Интерфейс с общими полями и методами для работы с заказом
+
+```ts
 export interface IOrderModel {
 	order: IOrder;
 	formErrors: TFormErrors;
@@ -492,37 +538,55 @@ export interface IOrderModel {
 	setOrderContacts: (field: keyof TContactForm, value: string) => void;
 	validateContacts: () => boolean;
 }
+```
 
-//Интерфейс состояния формы
+Интерфейс состояния формы
+
+```ts
 export interface IFormState {
 	valid: boolean;
 	errors: string[];
 }
+```
 
-//Интерфейс контента модального окна
+Интерфейс контента модального окна
+
+```ts
 export interface IModalData {
 	content: HTMLElement;
 }
+```
 
-//Интерфейс общей стоимости заказа
+Интерфейс общей стоимости заказа
+
+```ts
 export interface ISuccess {
 	total: number;
 }
+```
 
-//Интрейфес события по клику
+Интрейфес события по клику
+
+```ts
 export interface ISuccessActions {
 	onClick: () => void;
 }
+```
 
-//Интрефейс отображения корзины
+Интрефейс отображения корзины
+
+```ts
 export interface IBasketView {
 	items: HTMLElement[];
 	price: number;
 	setIndexes(): void;
 	toggleButton(state: boolean): void;
 }
+```
 
-//Интерфейс формы заказа
+Интерфейс формы заказа
+
+```ts
 export interface IOrderForm {
 	payment: string;
 	address: string;
@@ -530,15 +594,21 @@ export interface IOrderForm {
 	phone: string;
 	onPaymentMethodSelect: (name: string) => void;
 }
+```
 
-//Интрефейс отображения главной страницы
+Интрефейс отображения главной страницы
+
+```ts
 export interface IPage {
 	counter: number;
 	catalog: HTMLElement[];
 	locked: boolean;
 }
+```
 
-// Перечисление с событиями магазина
+Перечисление с событиями магазина
+
+```ts
 export enum Events {
 	ITEMS_CHANGE = 'items:change', //отобразить содержимое каточки с товарами
 	CARD_SELECT = 'card:select', //показать превью карточки товара
