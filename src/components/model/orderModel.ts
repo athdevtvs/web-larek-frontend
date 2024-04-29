@@ -1,5 +1,5 @@
 import { Model } from '../base/model';
-import { IOrderModel, IOrder, TContactForm, TOrderForm } from '../../types';
+import { IOrderModel, IOrder, TContactForm, TOrderForm, Events } from '../../types';
 import { IEvents } from '../base/events';
 import { TFormErrors } from '../../types/index';
 
@@ -30,19 +30,16 @@ export class OrderModel extends Model<IOrder> implements IOrderModel {
 	}
 
 	validateOrderAddressAndPayment() {
-		const addressRegexp = /^(?:[а-яА-ЯёЁ0-9\S .-]+,){4,}[а-яА-ЯёЁ0-9\S .-]+$/;
 		const errors: typeof this.formErrors = {};
 
 		if (!this.order.payment) {
 			errors.payment = 'Выберите способ оплаты';
 		} else if (!this.order.address) {
 			errors.address = 'Необходимо указать адрес';
-		} else if (!addressRegexp.test(this.order.address)) {
-			errors.address = 'Укажите существующий адрес, напр. "Индекс, город, улица, дом, строение, квартира"';
 		}
 
 		this.formErrors = errors;
-		this.emitChanges('formErrors:address', this.formErrors);
+		this.emitChanges(Events.FORM_ERRORS_ADRESS, this.formErrors);
 		return Object.keys(errors).length === 0;
 	}
 
@@ -77,7 +74,7 @@ export class OrderModel extends Model<IOrder> implements IOrderModel {
 		}
 
 		this.formErrors = errors;
-		this.emitChanges('formErrors:contacts', this.formErrors);
+		this.emitChanges(Events.FORM_ERRORS_CONTACTS, this.formErrors);
 		return Object.keys(errors).length === 0;
 	}
 }

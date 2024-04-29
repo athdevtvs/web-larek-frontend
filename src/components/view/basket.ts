@@ -1,5 +1,5 @@
 import { Component } from '../base/component';
-import { IBasketView } from '../../types';
+import { IBasketView, Events } from '../../types';
 import { createElement, ensureElement } from '../../utils/utils';
 import { EventEmitter } from '../base/events';
 
@@ -16,7 +16,7 @@ export class Basket extends Component<IBasketView> {
 		this._button = this.container.querySelector('.basket__button');
 
 		if (this._button) {
-			this._button.addEventListener('click', () => events.emit('order:open'));
+			this._button.addEventListener('click', () => events.emit(Events.ORDER_OPEN));
 		}
 
 		this.items = [];
@@ -40,13 +40,6 @@ export class Basket extends Component<IBasketView> {
 	//Отрисовать полную стоимость корзины
 	set price(price: number) {
 		this.setText(this._price, `${price} синапсов`);
-	}
-
-	//Отрисовать индексы у позиций в корзине
-	setIndexes() {
-		Array.from(this._list.children).forEach(
-			(item, index) => (item.querySelector('.basket__item-index').textContent = String(index + 1))
-		);
 	}
 
 	//Изменить состояние кнопки с активного на неактиваное и в обратную сторону

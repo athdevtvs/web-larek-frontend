@@ -25,6 +25,12 @@ export interface IOrder {
 	items: string[];
 }
 
+//Содержимое карточки товара корзины
+export interface ICard extends IProduct {
+	index: string;
+	button: string;
+}
+
 //Поля с формы заказа
 export type TOrderForm = Pick<IOrder, 'payment' | 'address'>;
 
@@ -137,4 +143,21 @@ export interface IPage {
 	counter: number;
 	catalog: HTMLElement[];
 	locked: boolean;
+}
+
+// Все события магазина
+export enum Events {
+	ITEMS_CHANGE = 'items:change', //отобразить содержимое каточки с товарами
+	CARD_SELECT = 'card:select', //показать превью карточки товара
+	PREVIEW_CHANGE = 'preview:change', //скастоваться на изменения в модалке с карточкой товара
+	BASKET_CHANGE = 'basket:change', //скастоваться на изменения в корзине
+	BASKET_OPEN = 'basket:open', //открыть содержимое корзины
+	ORDER_OPEN = 'order:open', //открыть форму заказа
+	ORDER_SUBMIT = 'order:submit', //открыть форму контактов
+	FORM_ERRORS_ADRESS = 'formErrors:address', //Изменилось состояние валидации формы
+	FORM_ERRORS_CONTACTS = 'formErrors:contacts', //Изменилось состояние валидации формы
+	ORDER_PAYMENT_CHANGE = 'order:payment:change', //Изменился способ оплаты
+	CONTACTS_SUBMIT = 'contacts:submit', //Размещение заказа
+	MODAL_OPEN = 'modal:open', //Открытие модального окна
+	MODAL_CLOSE = 'modal:close', //Закрытие модального окна
 }

@@ -1,5 +1,5 @@
 import { Component } from '../../base/component';
-import { IModalData } from '../../../types';
+import { IModalData, Events } from '../../../types';
 import { IEvents } from '../../base/events';
 import { ensureElement } from '../../../utils/utils';
 
@@ -23,13 +23,13 @@ export class Modal extends Component<IModalData> {
 	}
 
 	open() {
-		this.container.classList.add('modal_active');
-		this._events.emit('modal:open');
+		this.toggleClass(this.container, 'modal_active', true);
+		this._events.emit(Events.MODAL_OPEN);
 	}
 
 	close() {
-		this.container.classList.remove('modal_active');
-		this._events.emit('modal:close');
+		this.toggleClass(this.container, 'modal_active', false);
+		this._events.emit(Events.MODAL_CLOSE);
 	}
 
 	render(data: IModalData): HTMLElement {

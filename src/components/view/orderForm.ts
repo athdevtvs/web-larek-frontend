@@ -1,14 +1,21 @@
 import { Form } from './common/form';
-import { IOrder, IOrderForm } from '../../types';
+import { IOrder, IOrderForm, Events } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureAllElements } from '../../utils/utils';
 
-export class Order extends Form<IOrder> implements IOrderForm {
+export class OrderForm extends Form<IOrder> implements IOrderForm {
 	protected _paymentButtons: HTMLButtonElement[];
 	protected _button: HTMLButtonElement;
+	protected _address: HTMLInputElement;
+	protected _email: HTMLInputElement;
+	protected _phone: HTMLInputElement;
 
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
+
+		this._address = this.container.elements.namedItem('address') as HTMLInputElement;
+		this._email = this.container.elements.namedItem('email') as HTMLInputElement;
+		this._phone = this.container.elements.namedItem('phone') as HTMLInputElement;
 
 		this._paymentButtons = ensureAllElements<HTMLButtonElement>('.button_alt', container);
 		this._paymentButtons.forEach((item) =>
@@ -23,19 +30,19 @@ export class Order extends Form<IOrder> implements IOrderForm {
 	}
 
 	set address(value: string) {
-		(this.container.elements.namedItem('address') as HTMLInputElement).value = value;
+		this._address.value = value;
 	}
 
 	set email(value: string) {
-		(this.container.elements.namedItem('email') as HTMLInputElement).value = value;
+		this._email.value = value;
 	}
 
 	set phone(value: string) {
-		(this.container.elements.namedItem('phone') as HTMLInputElement).value = value;
+		this._phone.value = value;
 	}
 
 	onPaymentMethodSelect(name: string) {
 		this.payment = name;
-		this.events.emit('order:payment:change', { name });
+		this.events.emit(Events.ORDER_PAYMENT_CHANGE, { name });
 	}
 }

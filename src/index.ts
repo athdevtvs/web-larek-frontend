@@ -3,7 +3,7 @@ import './scss/styles.scss';
 import { CDN_URL, API_URL } from './utils/constants';
 import { EventEmitter } from './components/base/events';
 import { ensureElement, cloneTemplate, isPaymentKey } from './utils/utils';
-import { IProduct, TOrderForm, TContactForm, PaymentMethod } from './types';
+import { IProduct, TOrderForm, TContactForm, PaymentMethod, ICard, Events } from './types';
 import { MagazinusApi } from './components/magazinusApi';
 import { CatalogModel } from './components/model/catalogModel';
 import { BasketModel } from './components/model/basketModel';
@@ -12,7 +12,7 @@ import { Page } from './components/view/page';
 import { Modal } from './components/view/common/modal';
 import { Card } from './components/view/card';
 import { Basket } from './components/view/basket';
-import { Order } from './components/view/order';
+import { OrderForm } from './components/view/orderForm';
 import { Success } from './components/view/common/success';
 
 const events = new EventEmitter();
@@ -37,32 +37,37 @@ const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
 //Переиспользуемые компоненты
 const basket = new Basket(cloneTemplate(basketTemplate), events);
-const order = new Order(cloneTemplate(orderTemplate), events);
-const contacts = new Order(cloneTemplate(contactsTemplate), events);
+const order = new OrderForm(cloneTemplate(orderTemplate), events);
+const contacts = new OrderForm(cloneTemplate(contactsTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), {
+	onClick: () => {
+		modal.close();
+	},
+});
 
 //Получаем список с товарами
 api
 	.getProductList()
 	.then((data: IProduct[]) => (catalogModel.items = data))
-	.catch((error) => console.log(error));
+	.catch(console.error);
 
 //Отобразить карточки с товарами на странице
-events.on('items:change', (items: IProduct[]) => {
+events.on(Events.ITEMS_CHANGE, (items: IProduct[]) => {
 	page.catalog = items.map((item) => {
 		const card = new Card(cloneTemplate(cardCatalogTemplate), {
-			onClick: () => events.emit('card:select', item),
+			onClick: () => events.emit(Events.CARD_SELECT, item),
 		});
 		return card.render(item);
 	});
 });
 
 //Показать превью карточки товара при клике по ней
-events.on('card:select', (item: IProduct) => {
+events.on(Events.CARD_SELECT, (item: IProduct) => {
 	catalogModel.preview = item;
 });
 
 //Скастоваться на изменения в модалке с карточкой товара
-events.on('preview:change', (item: IProduct) => {
+events.on(Events.PREVIEW_CHANGE, (item: IProduct) => {
 	const card = new Card(cloneTemplate(cardPreviewTemplate), {
 		onClick: () => {
 			if (basketModel.isInBasket(item)) {
@@ -71,6 +76,7 @@ events.on('preview:change', (item: IProduct) => {
 			} else {
 				basketModel.addToBasket(item);
 				card.button = 'Удалить из корзины';
+				modal.close();
 			}
 		},
 	});
@@ -85,29 +91,32 @@ events.on('preview:change', (item: IProduct) => {
 });
 
 //Скастоваться на изменения в корзине
-events.on('basket:change', () => {
+events.on(Events.BASKET_CHANGE, (items: ICard[]) => {
 	page.counter = basketModel.items.length;
 
-	basket.items = basketModel.items.map((basketItem) => {
+	basket.items = items.map((basketItem, index) => {
 		const item = catalogModel.items.find((catalogItem) => catalogItem.id === basketItem.id);
 		const card = new Card(cloneTemplate(cardBasketTemplate), {
 			onClick: () => basketModel.deleteFromBasket(item),
 		});
-		return card.render(item);
+		return card.render({
+			index: String(index + 1),
+			title: item.title,
+			price: item.price,
+		});
 	});
 
-	if (basketModel.items.length !== 0) basket.setIndexes();
 	basket.price = basketModel.price;
 	orderModel.order.total = basketModel.price;
 });
 
 //Открыть содержимое корзины
-events.on('basket:open', () => {
+events.on(Events.BASKET_OPEN, () => {
 	modal.render({ content: basket.render() });
 });
 
 //Открыть форму заказа
-events.on('order:open', () => {
+events.on(Events.ORDER_OPEN, () => {
 	orderModel.order.items = basketModel.items.map((item) => item.id);
 
 	modal.render({
@@ -121,7 +130,7 @@ events.on('order:open', () => {
 });
 
 //Открыть форму контактов
-events.on('order:submit', () => {
+events.on(Events.ORDER_SUBMIT, () => {
 	modal.render({
 		content: contacts.render({
 			email: '',
@@ -133,7 +142,7 @@ events.on('order:submit', () => {
 });
 
 //Изменилось состояние валидации формы
-events.on('formErrors:address', (errors: Partial<TOrderForm>) => {
+events.on(Events.FORM_ERRORS_ADRESS, (errors: Partial<TOrderForm>) => {
 	const { address, payment } = errors;
 	order.valid = !address && !payment;
 	order.errors = Object.values({ address, payment })
@@ -142,7 +151,7 @@ events.on('formErrors:address', (errors: Partial<TOrderForm>) => {
 });
 
 //Изменилось состояние валидации формы
-events.on('formErrors:contacts', (errors: Partial<TContactForm>) => {
+events.on(Events.FORM_ERRORS_CONTACTS, (errors: Partial<TContactForm>) => {
 	const { email, phone } = errors;
 	contacts.valid = !email && !phone;
 	contacts.errors = Object.values({ phone, email })
@@ -151,7 +160,7 @@ events.on('formErrors:contacts', (errors: Partial<TContactForm>) => {
 });
 
 //Изменился способ оплаты
-events.on('order:payment:change', ({ name }: { name: PaymentMethod }) => {
+events.on(Events.ORDER_PAYMENT_CHANGE, ({ name }: { name: PaymentMethod }) => {
 	if (isPaymentKey(name)) {
 		orderModel.order.payment = name;
 		orderModel.validateOrderAddressAndPayment();
@@ -168,16 +177,10 @@ events.on(/^contacts\..*:change/, (data: { field: keyof TContactForm; value: str
 });
 
 //Размещение заказа
-events.on('contacts:submit', () => {
+events.on(Events.CONTACTS_SUBMIT, () => {
 	api
 		.placeOrder(orderModel.order)
 		.then(() => {
-			const success = new Success(cloneTemplate(successTemplate), {
-				onClick: () => {
-					modal.close();
-				},
-			});
-
 			success.total = `Списано ${orderModel.order.total} синапсов`;
 			basketModel.clearBasket();
 
@@ -187,11 +190,11 @@ events.on('contacts:submit', () => {
 });
 
 //Заблокировать основную страницу при открытии модалки
-events.on('modal:open', () => {
+events.on(Events.MODAL_OPEN, () => {
 	page.locked = true;
 });
 
 //Разблокировать основную страницу при закрытии модалки
-events.on('modal:close', () => {
+events.on(Events.MODAL_CLOSE, () => {
 	page.locked = false;
 });

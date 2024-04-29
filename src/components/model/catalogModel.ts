@@ -1,5 +1,5 @@
 import { Model } from '../base/model';
-import { ICatalogModel, IProduct } from '../../types';
+import { ICatalogModel, IProduct, Events } from '../../types';
 import { IEvents } from '../base/events';
 
 export class CatalogModel extends Model<IProduct> implements ICatalogModel {
@@ -13,7 +13,7 @@ export class CatalogModel extends Model<IProduct> implements ICatalogModel {
 
 	set items(items: IProduct[]) {
 		this._items = items;
-		this.emitChanges('items:change', this._items);
+		this.emitChanges(Events.ITEMS_CHANGE, this._items);
 	}
 
 	get items() {
@@ -22,6 +22,6 @@ export class CatalogModel extends Model<IProduct> implements ICatalogModel {
 
 	set preview(item: IProduct) {
 		this.selectedItem = item;
-		this.emitChanges('preview:change', item);
+		this.emitChanges(Events.PREVIEW_CHANGE, item);
 	}
 }

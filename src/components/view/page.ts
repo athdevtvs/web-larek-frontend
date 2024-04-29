@@ -1,5 +1,5 @@
 import { Component } from '../base/component';
-import { IPage } from '../../types';
+import { IPage, Events } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 
@@ -18,7 +18,7 @@ export class Page extends Component<IPage> {
 		this._basket = ensureElement<HTMLButtonElement>('.header__basket');
 
 		this._basket.addEventListener('click', () => {
-			this.events.emit('basket:open');
+			this.events.emit(Events.BASKET_OPEN);
 		});
 	}
 

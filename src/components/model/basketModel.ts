@@ -1,5 +1,5 @@
 import { Model } from '../base/model';
-import { IBasketModel, IProduct } from '../../types';
+import { IBasketModel, IProduct, Events } from '../../types';
 import { IEvents } from '../base/events';
 
 export class BasketModel extends Model<IProduct> implements IBasketModel {
@@ -31,19 +31,20 @@ export class BasketModel extends Model<IProduct> implements IBasketModel {
 	addToBasket(item: IProduct) {
 		this._items.push(item);
 		this.price += item.price;
-		this.emitChanges('basket:change', this._items);
+		this.emitChanges(Events.BASKET_CHANGE, this._items);
 	}
 
 	//Удалить позицию с товаром из корзины
 	deleteFromBasket(item: IProduct) {
 		this._items = this._items.filter((id) => id !== item);
 		this.price -= item.price;
-		this.emitChanges('basket:change', this._items);
+		this.emitChanges(Events.BASKET_CHANGE, this._items);
 	}
 
 	//Очистить корзину
 	clearBasket() {
 		this._items.length = 0;
-		this.emitChanges('basket:change', this._items);
+		this.price = 0;
+		this.emitChanges(Events.BASKET_CHANGE, this._items);
 	}
 }

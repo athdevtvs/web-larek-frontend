@@ -1,15 +1,16 @@
 import { Component } from '../base/component';
-import { IProduct, IActions } from '../../types';
+import { IActions, ICard } from '../../types';
 import { ensureElement } from '../../utils/utils';
 import { CATEGORY_COLORS } from '../../utils/constants';
 
-export class Card extends Component<IProduct> {
+export class Card extends Component<ICard> {
 	protected _title: HTMLHeadingElement;
 	protected _image: HTMLImageElement;
 	protected _price: HTMLSpanElement;
 	protected _category: HTMLSpanElement;
 	protected _description?: HTMLParagraphElement;
 	protected _button?: HTMLButtonElement;
+	protected _index: HTMLSpanElement;
 
 	constructor(readonly container: HTMLElement, actions?: IActions) {
 		super(container);
@@ -20,6 +21,7 @@ export class Card extends Component<IProduct> {
 		this._category = container.querySelector('.card__category');
 		this._description = container.querySelector('.card__description');
 		this._button = container.querySelector('.card__button');
+		this._index = container.querySelector('.basket__item-index');
 
 		if (actions?.onClick) {
 			if (this._button) {
@@ -56,7 +58,7 @@ export class Card extends Component<IProduct> {
 
 	set price(value: string) {
 		this.setText(this._price, value ? `${value} синапсов` : 'Бесценно');
-		if (this._button) this._button.disabled = !value;
+		if (this._button) this.setDisabled(this._button, !value);
 		if (!value) this.setText(this._button, 'Не продается');
 	}
 
@@ -75,5 +77,13 @@ export class Card extends Component<IProduct> {
 
 	set image(src: string) {
 		this.setImage(this._image, src, this.title);
+	}
+
+	set index(value: string) {
+		this._index.textContent = value;
+	}
+
+	get index(): string {
+		return this._index.textContent || '';
 	}
 }
